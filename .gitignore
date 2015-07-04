@@ -1,0 +1,9 @@
+theos/
+
+deployment-config.json
+
+_/
+
+Packages
+
+.theos/
