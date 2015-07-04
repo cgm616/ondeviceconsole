@@ -92,6 +92,8 @@ ssize_t write_colored(int fd, void* buffer, size_t len) {
   NSString *str = [NSString stringWithUTF8String:escapedBuffer];
   free(escapedBuffer);
 
+  NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+
   NSError *error = nil;
   NSRegularExpression *regex = [NSRegularExpression
                                   regularExpressionWithPattern:@LINE_REGEX
@@ -112,15 +114,11 @@ ssize_t write_colored(int fd, void* buffer, size_t len) {
       continue;
     }
 
-    NSRange dateRange    =  [match rangeAtIndex:1];
-    NSRange deviceRange  =  [match rangeAtIndex:2];
     NSRange processRange =  [match rangeAtIndex:3];
     NSRange pidRange     =  [match rangeAtIndex:4];
     NSRange typeRange    =  [match rangeAtIndex:5];
     NSRange logRange     =  [match rangeAtIndex:6];
 
-    NSString *date       =  [str substringWithRange:dateRange];
-    NSString *device     =  [str substringWithRange:deviceRange];
     NSString *process    =  [str substringWithRange:processRange];
     NSString *pid        =  [str substringWithRange:pidRange];
     NSString *type       =  [str substringWithRange:typeRange];
@@ -133,11 +131,20 @@ ssize_t write_colored(int fd, void* buffer, size_t len) {
 
     NSMutableString *build = [NSMutableString new];
 
-    [build appendString:@COLOR_DARK_WHITE];
-    [build appendString:date];
-    [build appendString:@" "];
-    [build appendString:device];
-    [build appendString:@" "];
+    if ([arguments containsObject:@"--no-prefix"] || [arguments containsObject:@"-n"]) {
+      // do nothing
+    } else {
+      NSRange dateRange    =  [match rangeAtIndex:1];
+      NSRange deviceRange  =  [match rangeAtIndex:2];
+      NSString *date       =  [str substringWithRange:dateRange];
+      NSString *device     =  [str substringWithRange:deviceRange];
+
+      [build appendString:@COLOR_DARK_WHITE];
+      [build appendString:date];
+      [build appendString:@" "];
+      [build appendString:device];
+      [build appendString:@" "];
+    }
 
     [build appendString:@COLOR_CYAN];
     [build appendString:process];
@@ -180,6 +187,13 @@ ssize_t write_colored(int fd, void* buffer, size_t len) {
 }
 
 int main(int argc, char **argv, char **envp) {
+
+  NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+
+  if ([arguments containsObject:@"--help"] || [arguments containsObject:@"-h"]) {
+    printf("ondeviceconsole options:\n--help (-h):      show this message\n--no-prefix (-n): show log messages with no date or device\n");
+    return 0;
+  }
 
   int nfd = unix_connect(SOCKET_PATH);
 

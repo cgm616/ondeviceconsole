@@ -1,10 +1,10 @@
-Package: com.eswick.ondeviceconsole
+Package: com.cgm616.ondeviceconsole
 Name: ondeviceconsole
-Depends: 
-Version: 1.0.0
+Depends:
+Version: 1.0.1
 Architecture: iphoneos-arm
 Description: Tool to view system log from the shell.
-Maintainer: Evan Swick
-Author: Evan Swick
+Maintainer: cgm616
+Author: Evan Swick and cgm616
 Section: System
 Tag: role::hacker
